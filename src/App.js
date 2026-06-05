@@ -19,33 +19,39 @@ function App() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("image", image);
-
-    try {
-      const res = await fetch("http://10.20.5.9:5000/predict", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        setError(data.error || "📶 Please turn on internet / mobile data");
-        return;
-      }
-      setError("");
-      setResult({
-        soil: data.soil,
-        crops: data.crops.map((c) => ({
-          name: c.crop,
-        })),
-      });
-    } catch (error) {
-      console.error(error);
-      setError("📶 No internet connection. Please turn on mobile data");
-    }
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const formData = new FormData();
+        formData.append("image", image);
+        formData.append("lat", lat);
+        formData.append("lon", lon);
+        try {
+          const res = await fetch("https://varuna9-backend.hf.space/predict", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            setError(data.error || "Error");
+            return;
+          }
+          setResult({
+            soil: data.soil,
+            crops: data.crops.map((c) => ({
+              name: c.crop,
+            })),
+          });
+        } catch (error) {
+          setError("Network Error");
+        }
+      },
+      (error) => {
+        setError("Please allow location access");
+      },
+    );
   };
-
   return (
     <div className="bg-[#f5f3ef] text-gray-900 min-h-screen">
       {/* NAVBAR */}
