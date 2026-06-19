@@ -128,7 +128,7 @@ function App() {
     }
 
     window.speechSynthesis.speak(speech);
-  }, [result, i18n.language, t]);
+  }, [result, t]);
 
   // BACKEND CONNECTION
   const handleDetect = async () => {
